@@ -10,7 +10,6 @@ import numpy as np
 
 # Import files
 wage_by_occupation = pd.read_excel('C:/Users/erinp/Documents/Grad School/Term 5 2023 Spring/470.708 Unleashing Open Data with Python/Final Project/Project Proposal/Data Source Ideas/Wage by Occupation state_M2021_dl.xlsx')
-# note summary stats are for all raw data, but wage by occupation was used in analysis based on Texas values only for comparability with ibc data
 
 ibc = pd.read_excel('C:/Users/erinp/Documents/Grad School/Term 5 2023 Spring/470.708 Unleashing Open Data with Python/Final Project/Project Proposal/Data Source Ideas/industry-based-certifications-earned-by-graduates-from-2017-thru-2021.xlsx', skiprows=2)
 ibc.drop(ibc.tail(3).index,inplace=True) # drop last 3 rows
@@ -28,7 +27,7 @@ len(ibc)
 len(soc_cluster_crosswalk)
 
 # get summary statistics
-
+# note summary stats are for all raw data, but wage by occupation was used in analysis based on Texas values only for comparability with ibc data
 # coerce variables to numeric for summary stats since there are some non-numeric values
 wage_by_occupation['TOT_EMP'] = pd.to_numeric(wage_by_occupation['TOT_EMP'],errors='coerce')
 wage_by_occupation['JOBS_1000'] =  pd.to_numeric(wage_by_occupation['JOBS_1000'],errors='coerce')
@@ -46,7 +45,6 @@ ibc['Graduates 2018'] = pd.to_numeric(ibc['Graduates 2018'],errors='coerce')
 ibc['Graduates 2019'] = pd.to_numeric(ibc['Graduates 2019'],errors='coerce')
 ibc['Graduates 2020'] = pd.to_numeric(ibc['Graduates 2020'],errors='coerce')
 ibc['Graduates 2021'] = pd.to_numeric(ibc['Graduates 2021'],errors='coerce')
-
 
 ibc[['Graduates 2017', 'Graduates 2018', 'Graduates 2019', 'Graduates 2020', 'Graduates 2021']].mean()
 ibc[['Graduates 2017', 'Graduates 2018', 'Graduates 2019', 'Graduates 2020', 'Graduates 2021']].median()
@@ -91,7 +89,7 @@ n_ibcs = len(ibc_top20['Industry-Based Certification (IBC) Name'])
 
 ibc_long = pd.DataFrame(dict(ibc_name=ibc_names*2,
                              graduates = ibc_most_recent + ibc_least_recent,
-                              timing = ["Most Recent Graduates"]*n_ibcs
+                             timing = ["Most Recent Graduates"]*n_ibcs
                              + ["Least Recent Graduates"]*n_ibcs))
 
 # Use column names of df for the different parameters x, y, color
@@ -130,7 +128,7 @@ n_ibcs_bottom = len(ibc_bottom20['Industry-Based Certification (IBC) Name'])
 
 ibc_long_bottom = pd.DataFrame(dict(ibc_name=ibc_names_bottom*2,
                              graduates = ibc_most_recent_bottom + ibc_least_recent_bottom,
-                              timing = ["Most Recent Graduates"]*n_ibcs_bottom
+                             timing = ["Most Recent Graduates"]*n_ibcs_bottom
                              + ["Least Recent Graduates"]*n_ibcs_bottom))
 
 # Use column names of df for the different parameters x, y, color
@@ -151,13 +149,15 @@ top_ibc_loss.show()
 
 # What career clusters (i.e. groups of occupations) are associated with the most popular industry-based credentials?
 
-ibc_top20_grouped = ibc_top20.groupby(['Primary State Career Cluster']).agg({'Status':'count',
-                                                                 'Industry-Based Certification (IBC) Name':'count',
-                                                                 'Graduates 2017':'sum','Graduates 2018':'sum', 
-                                                                 'Graduates 2019':'sum', 'Graduates 2020':'sum',
-                                                                 'Graduates 2021':'sum', 'Most Recent Graduates': 'sum',
-                                                                 'Least Recent Graduates': 'sum',
-                                                                 'IBC Growth':'sum'})
+ibc_top20_grouped = ibc_top20.groupby(['Primary State Career Cluster']).agg(
+    {'Status':'count',
+     'Industry-Based Certification (IBC) Name':'count',
+     'Graduates 2017':'sum','Graduates 2018':'sum', 
+     'Graduates 2019':'sum', 'Graduates 2020':'sum',
+     'Graduates 2021':'sum', 'Most Recent Graduates': 'sum',
+     'Least Recent Graduates': 'sum',
+     'IBC Growth':'sum'})
+
 # rename column status to indicate retired/sunsetting
 ibc_top20_grouped = ibc_top20_grouped.rename(columns={'Status':'Retired or Sunsetting'})
 
@@ -193,13 +193,14 @@ np.where(ibc['IBC Growth'].isnull())[0] #162
 
 ibc_notnull = ibc[0:162]
 
-ibc_cluster = ibc_notnull.groupby(['Primary State Career Cluster']).agg({'Status':'count',
-                                                                 'Industry-Based Certification (IBC) Name':'count',
-                                                                 'Graduates 2017':'sum','Graduates 2018':'sum', 
-                                                                 'Graduates 2019':'sum', 'Graduates 2020':'sum',
-                                                                 'Graduates 2021':'sum','Most Recent Graduates': 'sum',
-                                                                 'Least Recent Graduates': 'sum',
-                                                                 'IBC Growth':'sum'})
+ibc_cluster = ibc_notnull.groupby(['Primary State Career Cluster']).agg({
+    'Status':'count',
+    'Industry-Based Certification (IBC) Name':'count',
+    'Graduates 2017':'sum','Graduates 2018':'sum', 
+    'Graduates 2019':'sum', 'Graduates 2020':'sum',
+    'Graduates 2021':'sum','Most Recent Graduates': 'sum',
+    'Least Recent Graduates': 'sum',
+    'IBC Growth':'sum'})
 
 # rename column status to indicate retired/sunsetting
 ibc_cluster = ibc_cluster.rename(columns={'Status':'Retired or Sunsetting'})
@@ -242,10 +243,11 @@ all_ibc_cluster_by_status.show()
 # change name of OCC_CODE to match crosswalk table
 wage_by_occupation = wage_by_occupation.rename(columns={'OCC_CODE':'SOC CODE'})
 
-wage_merged = pd.merge(wage_by_occupation, soc_cluster_crosswalk[['SOC CODE', 
-                                                                  'SOC Career Clstr No', 
-                                                                  'SOC_Career Clusters', 
-                                                                  'SOC PTHWY NO', 'SOC_PTHWYTITL']], 
+wage_merged = pd.merge(wage_by_occupation, 
+                       soc_cluster_crosswalk[['SOC CODE', 
+                                              'SOC Career Clstr No', 
+                                              'SOC_Career Clusters', 
+                                              'SOC PTHWY NO', 'SOC_PTHWYTITL']], 
                        on='SOC CODE', how='left')
 
 # subset to Texas only for comparability with ibc data
@@ -281,13 +283,14 @@ wage_merged_tx = wage_merged_tx.replace('*', np.NaN)
 wage_merged_tx = wage_merged_tx.replace('#', np.NaN)
 
 # group by cluster like ibc
-wage_cluster = wage_merged_tx.groupby(['SOC_Career Clusters']).agg({'TOT_EMP':'sum', 'H_MEDIAN':'median',
-                                                                    'H_PCT25':'median',
-                                                                    'H_PCT75':'median',
-                                                                    'A_MEDIAN':'median',
-                                                                    'A_PCT25':'median',
-                                                                    'A_PCT75':'median'
-                                                                    })
+wage_cluster = wage_merged_tx.groupby(['SOC_Career Clusters']).agg({
+    'TOT_EMP':'sum', 'H_MEDIAN':'median',
+    'H_PCT25':'median',
+    'H_PCT75':'median',
+    'A_MEDIAN':'median',
+    'A_PCT25':'median',
+    'A_PCT75':'median'
+    })
 
 # reset index so clusters becomes its own column
 wage_cluster = wage_cluster.reset_index()
